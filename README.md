@@ -1,9 +1,9 @@
 defineClass
 ===========================================================================================================
-simple yet powerful OOP for JavaScript with support for traits (mixins)
----------------------------------------------------------------------------------------------
+Simple yet powerful OOP for JavaScript with support for traits (mixins)
+-----------------------------------------------------------------------
 
-The `defineClass(prototype)` function creates a class based on a prototype. 
+Defining a class is as simple and declarative as this:
 
 ```js
 var Person = defineClass({
@@ -22,6 +22,50 @@ p.greet("Nick"); // Hello Nick. My name is John
 assert(p instanceof Person);
 ```
 
+### Contents:
+  <ol>
+    <li style="line-height: 4px"> 
+      <a href="#defining-classes">Defining classes</a>
+      <ol>
+        <li><a href="#default-field-values">Default field values</a></li>
+      </ol>
+    </li>
+    <li style="line-height: 4px"> 
+      <a href="#inheritance">Inheritance</a>
+      <ol style="margin:0; padding-top:0; padding-bottom:0;">
+        <li><a href="#overriding-default-field-values-and-methods-and-calling-base-methods">Overriding default field values and methods and calling base methods</a></li>
+      </ol>
+    </li>
+    <li style="line-height: 4px">
+      <a href="#traits-mixins">Traits</a>
+      <ol>
+        <li><a href="#calling-class-methods-in-traits">Calling class methods in traits</a></li>
+        <li><a href="#overriding-base-class-methods-with-traits">Overriding base class methods with traits</a></li>
+        <li><a href="#trait-order-in-_super">Trait order in _super</a></li>
+      </ol>
+    </li>
+    <li style="line-height: 4px"> 
+      <a href="#proxy-classes">Proxy classes</a>
+      <ol>
+        <li><a href="#method-delegation-using-proxy-traits">Method delegation using proxy traits</a></li>
+      </ol>
+    </li>
+    <li style="line-height: 4px"> 
+      <a href="#nested-classes">Nested classes</a>
+      <ol>
+        <li><a href="#decreasing-complexity">Decreasing complexity</a></li>
+        <li>
+          <a href="#nested-class-overriding">Nested class overriding</a>
+          <ol>
+            <li><a href="#special-notation">Special notation</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+
+Defining classes
+----------------
 ### Default field values
 If a field has an immutable default value, it can be included in the prototype.
 
@@ -83,7 +127,7 @@ assert(b instanceof Person);
 assert(b instanceof Boss);
 ```
 
-### Overriding field default values and methods and calling base methods
+### Overriding default field values and methods and calling base methods
 
 Members in a subclass override the base members of the same name. To call a base method, call the special `this._super` method.
 It applies to constructors too.
@@ -238,7 +282,7 @@ c2.greet("Bob");
 
 We've changed the trait order and the output has changed.
 
-Using proxy classes
+Proxy classes
 -------------------
 
 ```js
@@ -342,7 +386,7 @@ Note that
 1. The `bar` method creates a `Bar` class instance as `new this.Bar()`. This is flexible because `this.Bar` can be overridden in a subclass.
 2. Since the `Bar` class is _overridden_ in the `Foo2`, it is unnecessary to override the `bar` method.
 
-#### Special syntax
+#### Special notation
 
 There is a special notation for class overriding:
 
