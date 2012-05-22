@@ -10,7 +10,7 @@
   }
 
   // creates a new object with baseObj as prototype. Fills with newMembers is specified.
-  function derive(baseObj, newMembers) {
+  function derive(baseObj) {
     var result, member, clazz;
     if (Object.create) {
       try {
@@ -25,13 +25,6 @@
       clazz.prototype = baseObj;
       result = new clazz();
     }
-
-    if (newMembers) {
-      for (member in newMembers) {
-        result[member] = newMembers[member];
-      }
-    }
-
     return result;
   }
 
@@ -182,7 +175,6 @@
     throw new Error("Abstract method cannot be called");
   };
 
-  defineClass.derive = derive;
   exports.defineClass = defineClass;
 
 })(this);
