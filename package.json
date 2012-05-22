@@ -1,0 +1,11 @@
+{
+  "name": "defineClass",
+  "description": "Simple yet powerful OOP with support for traits (mixins) and nested classes.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/nodirt/defineClass",
+  "repository": "git://github.com/nodirt/defineClass.git",
+  "author": "Nodir Turakulov",
+  "private": false,
+  "main": "./defineClass.js",
+  "keywords": ["class", "oop", "object-oriented", "inheritance", "private", "protected", "public", "abstract", "trait", "mixin"]
+}
