@@ -22,6 +22,10 @@ p.greet("Nick"); // Hello Nick. My name is John
 assert(p instanceof Person);
 ```
 
+### Installation
+
+    $ npm install defineClass
+
 ### Contents:
   <ol>
     <li style="line-height: 4px"> 
