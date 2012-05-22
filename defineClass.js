@@ -9,7 +9,7 @@
     return array instanceof Array;
   }
 
-  // creates a new object with baseObj as prototype. Fills with newMembers is specified.
+  // creates a new object with baseObj as prototype.
   function derive(baseObj) {
     var result, member, clazz;
     if (Object.create) {
