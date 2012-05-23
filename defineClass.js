@@ -28,6 +28,19 @@
     return result;
   }
 
+  function applyAll(funcs, arg) {
+    var i;
+    for (i = 0; i < funcs.length; i++) {
+      if (isFunc(funcs[i])) {
+        arg = funcs[i](arg) || arg;
+      }
+    }
+    return arg;
+  }
+  function pipeline(decorator) {
+    return applyAll(arguments, this);
+  }
+
   // derives a prototype from another one, inherits/overrides methods and nested classes
   function inherit(superPrototype, subPrototype) {
     function overrideMethod(superMethod, method) {
@@ -139,16 +152,18 @@
     prototype = compileProto(prototype);
     prototype.constructor.prototype = prototype;
     prototype.constructor.isClass = true;
+    prototype.constructor.decorate = pipeline;
     return prototype.constructor;
   }
 
   defineClass.trait = function (traitDef) {
     function trait(proto) {
-      return isFunc(proto) && proto.isClass 
-        ? defineClass({ _super: [proto, traitDef] })
+      return isFunc(proto) 
+        ? (proto.isTrait ? defineClass.trait : defineClass)({ _super: [proto, traitDef] })
         : inherit(proto, traitDef);
     }
     trait.def = traitDef = compileProto(traitDef);
+    trait.decorate = pipeline;
     trait.isTrait = true;
     return trait;
   };

@@ -116,6 +116,12 @@ test("inherit from a class with a base class", function () {
 });
 
 test("mix a trait", function () {
+  function testB(B, inB) {
+    var b = new B();
+    equal(b.f, 1);
+    equal(b.tm(), "mix");
+    equal(b.m("x"), "x mixed" + (inB ? " in B": ""));
+  }
   var A = defineClass({
     constructor: function () {
       this.f = 1;
@@ -134,24 +140,24 @@ test("mix a trait", function () {
     }
   });
 
-  var B = T(A);
-
-  var b = new B();
-  equal(b.f, 1);
-  equal(b.tm(), "mix");
-  equal(b.m("x"), "x mixed");
-
-  B = defineClass({
+  testB(T(A));
+  testB(A.decorate(T));
+  testB(defineClass({
     _super: [A, T],
     m: function (p) {
       return this._super(p) + " in B";
     }
+  }), true);
+
+  var T2 = defineClass.trait({
+    tm: function () {
+      return this._super() + this._super();
+    }
   });
 
-  b = new B();
-  equal(b.f, 1);
-  equal(b.tm(), "mix");
-  equal(b.m("x"), "x mixed in B");
+  var B = A.decorate(T, T2);
+  var b = new B();
+  equal(b.tm(), "mixmix");
 });
 
 test("implement a trait in a trait", function () {
@@ -179,6 +185,15 @@ test("implement a trait in a trait", function () {
 
   equal(clazz.prototype.bar, false);
   equal(new clazz().foo(), 4);
+
+  clazz = defineClass({ _super: trait2(trait1) });
+  equal(new clazz().foo(), 2);  
+
+  clazz = defineClass({ _super: trait1.decorate(trait2) });
+  equal(new clazz().foo(), 2);  
+
+  clazz = defineClass({ _super: trait2.decorate(trait1) });
+  equal(new clazz().foo(), 1);
 });
 
 test("generate a proxy", function () {
