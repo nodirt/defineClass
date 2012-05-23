@@ -93,8 +93,32 @@
   }
 
   function compileProto(prototype) {
+    function findMemberDecorators(prototype) {
+      var decorators,
+          name;
+      for (name in prototype) {
+        if (name.length > 1 && name[name.length - 1] == "$") {
+          decorators = decorators || {};
+          decorators[name.substr(0, name.length - 1)] = prototype[name];
+          delete prototype[name];
+        }
+      }
+      return decorators;
+    }
+
+    function applyMemberDecorators(prototype, decorators) {
+      var name, decorator;
+      for (name in prototype) {
+        decorator = decorators[name];
+        if (decorator) {
+          prototype[name] = applyAll(decorator, prototype[name]);
+        }
+      }
+    }
+
     var sup = prototype._super,
         applyAfter = prototype.$,
+        memberDecorators = findMemberDecorators(prototype),
         i, proto;
     delete prototype._super;
     delete prototype.$;
@@ -113,6 +137,9 @@
     }
 
     prototype = applyAll(applyAfter, prototype);
+    if (memberDecorators) {
+      applyMemberDecorators(prototype, memberDecorators);
+    }
     return prototype;
   }
 

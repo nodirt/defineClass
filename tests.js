@@ -324,6 +324,60 @@ test("apply a class decorator", function () {
   equal(a.m(), 2);
 });
 
+test("apply a method decorator", function () {
+  function suppressError(fn) {
+    return function () {
+      try {
+        return fn.apply(this, arguments);
+      } catch (err) {
+        return "err";
+      }
+    };
+  }
+
+  var A = defineClass({
+    m$: suppressError,
+    m: function () {
+      throw new Error();
+    }
+  });
+
+  var a = new A();
+  equal(a.m(), "err");
+});
+
+test("apply a nested class decorator", function () {
+  var A = defineClass({
+    N: defineClass({
+      m: function () {
+        throw new Error();
+      }
+    }),
+
+    n: function () {
+      return new this.N().m();
+    }
+  });
+
+  var T = defineClass.trait({
+    m: function () {
+      try {
+        return this._super();
+      } catch (err) {
+        return "err";
+      }
+    }
+  });
+
+  var B = defineClass({
+    _super: A,
+    N$: T
+  });
+
+  var b = new B();
+  equal(b.n(), "err");
+});
+
 if (!failed) {
   console.log("All tests passed");
 }
