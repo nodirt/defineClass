@@ -5,138 +5,162 @@ var defineClass = require("./defineClass.js").defineClass,
 function test(name, fn) {
   try {
     fn();
-    console.log("Test '" + name + "' passed.")
+    console.log("pass: " + name)
   } catch (err) {
-      console.log("Test '" + name + "' failed. ")
     failed = true;
-    console.log(err.message);
-    console.log(err.stack);
+    if (err instanceof Error) {
+      console.log(err.message);
+      console.log(err.stack);
+    } else {
+      console.log(err);
+    }
+    console.log("FAIL: " + name)
     console.log("------------------------------------------------------------------------");    
   }
 }
 
 function equal(a, b) {
   if (a !== b) {
-    throw "Test failed";
+    throw a + " != " + b;
   }
 }
-
-// utils
-function generateClasses() {
-  var classes = [], 
-      trait;
-
-  classes.push(defineClass({
-    constructor: function () {
-      this._field1 = 1;
-    },
-    item: function (param) {
-      return param;
-    },
-    count: function () {
-      return 1;
-    }
-  }));
-
-  classes.push(defineClass({
-    _super: classes[0],
-    constructor: function () {
-      this._super();
-      this._field2 = 2;
-    },
-    item: function (param) {
-      return this._super(param) + " derived";
-    },
-    method2: function (param) {
-      return param + " in Clazz2";
-    }
-  }));
-
-  classes.push(defineClass({
-    _super: classes[1],
-    method3: function () {
-      return "method3";
-    }
-  }));
-
-  trait = {
-    mixedMethod: function () {
-      return "mix";
-    },
-    item: function (param) {
-      return this._super(param) + " mixed";
-    }
-  };
-  classes.push(defineClass({
-    _super: [classes[0], trait],
-    normalMethod: function () {
-      return "normal";
-    }
-  }));
-
-  return classes;
-}
-
-function create(classIndex) {
-  var Class = generateClasses()[classIndex];
-  return new Class();
-}
-
 
 // tests
-test("define a trivial class", function () {
-  var instance = create(0);
-  equal(instance._field1, 1);
-  equal(instance.item("bar"), "bar");
-});
-
-test("class must match class.prototype.constructor", function () {
-  var classes = generateClasses(defineClass),
-      i;
-  for (i = 0; i < classes.length; i++) {
-    equal(classes[i], classes[i].prototype.constructor);
-  }
-});
-
-test("inherit from a class", function () {
-  var instance = create(1);
-  equal(instance._field1, 1);
-  equal(instance._field2, 2);
-  equal(instance.item("bar"), "bar derived");
-  equal(instance.method2("foo"), "foo in Clazz2");
-});
-
-test("inherit from a class with a base class", function () {
-  var instance = create(2);
-  equal(instance._field1, 1);
-  equal(instance._field2, 2);
-  equal(instance.item("bar"), "bar derived");
-  equal(instance.method2("foo"), "foo in Clazz2");
-  equal(instance.method3(), "method3");
-});
-
-test("apply a trait", function () {
-  var instance = create(3);
-  equal(instance._field1, 1);
-  equal(instance.item("bar"), "bar mixed");
-  equal(instance.mixedMethod(), "mix");
-  equal(instance.normalMethod(), "normal");
-});
-
-test("generate a proxy", function () {
-  var clazz = defineClass({
-    foo: function () {
-      this.bar = "bar";
+test("define a class", function () {
+  var A = defineClass({
+    f: 1,
+    constructor: function () {
+      this.f2 = 2;
+    },
+    m: function (p) {
+      return p;
     }
   });
 
-  var proxyClass = defineClass.proxy(clazz),
-      real = new clazz(),
-      proxy = new proxyClass(real);
+  var a = new A();
+  equal(a.f, 1);
+  equal(a.f2, 2);
+  equal(a.m("s"), "s");
+});
 
-  equal(real.bar, undefined);
-  proxy.foo();
-  equal(real.bar, "bar");
+test("class must match class.prototype.constructor", function () {
+  var A = defineClass({
+    constructor: function () {}
+  });
+  equal(A, A.prototype.constructor);
+
+  var Empty = defineClass({});
+  equal(Empty, Empty.prototype.constructor);
+});
+
+test("inherit from a class", function () {
+  var A = defineClass({
+    constructor: function () {
+      this.f = 1;
+    },
+    m: function (p) {
+      return p;
+    }
+  });
+
+  var B = defineClass({
+    _super: A,
+    constructor: function () {
+      this._super();
+      this.f2 = 2;
+    },
+    m: function (p) {
+      return this._super(p) + " in B";
+    },
+    m2: function (p) {
+      return p + " in B";
+    }
+  });
+
+  var b = new B();
+  equal(b.f, 1);
+  equal(b.f2, 2);
+  equal(b.m("s"), "s in B");
+  equal(b.m2("s"), "s in B");
+});
+
+test("inherit from a class with a base class", function () {
+  var A = defineClass({
+    constructor: function () {
+      this.f = 1;
+    },
+    m: function (p) {
+      return p;
+    }
+  });
+
+  var B = defineClass({
+    _super: A,
+    m2: function (p) {
+      return p + " in B";
+    }
+  });
+
+  var C = defineClass({
+    _super: B,
+    m3: function () {
+      return "c";
+    }
+  });
+
+  var c = new C();
+  equal(c.f, 1);
+  equal(c.m(1), 1);
+  equal(c.m2("s"), "s in B");
+  equal(c.m3(), "c");
+});
+
+test("mix a trait", function () {
+  var A = defineClass({
+    constructor: function () {
+      this.f = 1;
+    },
+    m: function (p) {
+      return p;
+    }
+  });
+
+  var T = {
+    tm: function () {
+      return "mix";
+    },
+    m: function (p) {
+      return this._super(p) + " mixed";
+    }
+  };
+
+  var B = defineClass({
+    _super: [A, T],
+    m: function (p) {
+      return this._super(p) + " in B";
+    }
+  });
+
+  var b = new B();
+  equal(b.f, 1);
+  equal(b.tm(), "mix");
+  equal(b.m("x"), "x mixed in B");
+});
+
+test("generate a proxy", function () {
+  var A = defineClass({
+    m: function () {
+      this.f = "s";
+    }
+  });
+
+  var P = defineClass.proxy(A),
+      a = new A(),
+      p = new P(a);
+
+  equal(a.f, undefined);
+  p.m();
+  equal(a.f, "s");
 });
 
 if (!failed) {
