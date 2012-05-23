@@ -1,5 +1,10 @@
 #ChangeLog
 
+### Version 0.2
+
+* Nested classes 
+  * Nested class overriding
+
 ###Version 0.1.1
 
 * Traits are defined as `defineClass.trait(definition)`
@@ -18,5 +23,3 @@ Features:
   * A class can apply multiple traits
   * A trait method can call `this._super()`
   * A trait cannot include other traits
-* Nested classes 
-  * Nested class overriding

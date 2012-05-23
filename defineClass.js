@@ -68,8 +68,10 @@
         if (isFunc(baseMember) && !member.isClass && methodTest.test(member)) {
           member = overrideMethod(baseMember, member);
         }
-      } else if (member && typeof member === "object" && isClass(baseMember)) {
-        member = defineClass(derive(member, { _super: baseMember }));
+      } else if (member && typeof member === "object" && baseMember.isClass) {
+        member = derive(member);
+        member._super = baseMember;
+        member = defineClass(member);
       }
       newPrototype[p] = member;
     }

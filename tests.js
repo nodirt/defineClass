@@ -212,6 +212,35 @@ test("generate a proxy", function () {
   equal(a.f, "s");
 });
 
+test("override nested class", function () {
+  var A = defineClass({
+    N: defineClass({
+      m: function () {
+        return 1;
+      }
+    }),
+
+    n: function () {
+      return new this.N().m();
+    }
+  });
+
+  var B = defineClass({
+    _super: A,
+    N: {
+      m: function () {
+        return this._super() * 2;
+      }
+    }
+  });
+
+  var a = new A();
+  equal(a.n(), 1);
+
+  var b = new B();
+  equal(b.n(), 2);
+});
+
 if (!failed) {
   console.log("All tests passed");
 }
