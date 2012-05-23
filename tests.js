@@ -125,26 +125,60 @@ test("mix a trait", function () {
     }
   });
 
-  var T = {
+  var T = defineClass.trait({
     tm: function () {
       return "mix";
     },
     m: function (p) {
       return this._super(p) + " mixed";
     }
-  };
+  });
 
-  var B = defineClass({
+  var B = T(A);
+
+  var b = new B();
+  equal(b.f, 1);
+  equal(b.tm(), "mix");
+  equal(b.m("x"), "x mixed");
+
+  B = defineClass({
     _super: [A, T],
     m: function (p) {
       return this._super(p) + " in B";
     }
   });
 
-  var b = new B();
+  b = new B();
   equal(b.f, 1);
   equal(b.tm(), "mix");
   equal(b.m("x"), "x mixed in B");
+});
+
+test("implement a trait in a trait", function () {
+  var trait1 = defineClass.trait({
+    bar: true,
+    foo: function () {
+      return 1;
+    }
+  });
+
+  var trait2 = defineClass.trait({
+    _super: trait1,
+    bar: false,
+    foo: function () {
+      return this._super() * 2;
+    }
+  });
+
+  var clazz = defineClass({
+    _super: trait2,
+    foo: function () {
+      return this._super() * 2;
+    }
+  });
+
+  equal(clazz.prototype.bar, false);
+  equal(new clazz().foo(), 4);
 });
 
 test("generate a proxy", function () {

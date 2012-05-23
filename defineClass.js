@@ -69,6 +69,28 @@
     return newPrototype;
   }
 
+  function compileProto(prototype) {
+    var sup = prototype._super,
+        i, proto;
+    delete prototype._super;
+
+    if (sup) {
+      sup = isArray(sup) ? sup.slice() : [sup];
+      sup.push(prototype);
+      prototype = null;
+      for (i = 0; i < sup.length; i++) {
+        proto = sup[i];
+        if (isFunc(proto)) {
+          proto = proto.isTrait ? proto.def : proto.prototype;
+        }
+        prototype = prototype ? inherit(prototype, proto) : proto;
+      }
+    }
+
+    return prototype;
+  }
+
+
   // Makes a class based on a prototype and its _super field value
   // Simple example:
   //   var Person = defineClass({
@@ -92,20 +114,19 @@
       }
 
       for (i = supers.length - 1; i >= 0; i--) {
-        if (isFunc(supers[i])) return supers[i];
+        if (isFunc(supers[i]) && supers[i].isClass) return supers[i];
         if (!Object.prototype.hasOwnProperty.call(supers[i], "constructor")) continue;
         if (supers[i].constructor) return supers[i].constructor;
       }
+
       return null;
     }
 
-    var sup = prototype._super,
-        baseCtor, i, proto;
-    delete prototype._super;
+    var baseCtor, i;
 
     // fix prototype.constructor
     if (!Object.prototype.hasOwnProperty.call(prototype, "constructor")) {
-      baseCtor = getBaseCtor(sup);
+      baseCtor = getBaseCtor(prototype._super);
       if (baseCtor) {
         prototype.constructor = function () {
           baseCtor.apply(this, arguments);
@@ -115,23 +136,22 @@
       }
     }
 
-    if (sup) {
-      sup = isArray(sup) ? sup.slice() : [sup];
-      sup.push(prototype);
-      prototype = null;
-      for (i = 0; i < sup.length; i++) {
-        proto = sup[i];
-        if (isFunc(proto)) {
-          proto = proto.prototype;
-        }
-        prototype = prototype ? inherit(prototype, proto) : proto;
-      }
-    }
-
+    prototype = compileProto(prototype);
     prototype.constructor.prototype = prototype;
     prototype.constructor.isClass = true;
     return prototype.constructor;
   }
+
+  defineClass.trait = function (traitDef) {
+    function trait(proto) {
+      return isFunc(proto) && proto.isClass 
+        ? defineClass({ _super: [proto, traitDef] })
+        : inherit(proto, traitDef);
+    }
+    trait.def = traitDef = compileProto(traitDef);
+    trait.isTrait = true;
+    return trait;
+  };
 
   // make a proxy class that delegates methods calls to the base object.
   // Example:
