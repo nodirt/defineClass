@@ -144,7 +144,7 @@
       baseCtor = getBaseCtor(prototype._super);
       if (baseCtor) {
         prototype.constructor = function () {
-          baseCtor.apply(this, arguments);
+          return baseCtor.apply(this, arguments);
         };
       } else {
         prototype.constructor = function () {};
