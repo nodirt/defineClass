@@ -21,7 +21,7 @@ function equal(a, b) {
   }
 }
 
-// tests
+// utils
 function generateClasses() {
   var classes = [], 
       trait;
@@ -82,7 +82,9 @@ function create(classIndex) {
   return new Class();
 }
 
-test("core", function () {
+
+// tests
+test("define a trivial class", function () {
   var instance = create(0);
   equal(instance._field1, 1);
   equal(instance.item("bar"), "bar");
@@ -96,7 +98,7 @@ test("class must match class.prototype.constructor", function () {
   }
 });
 
-test("inheritance", function () {
+test("inherit from a class", function () {
   var instance = create(1);
   equal(instance._field1, 1);
   equal(instance._field2, 2);
@@ -104,7 +106,7 @@ test("inheritance", function () {
   equal(instance.method2("foo"), "foo in Clazz2");
 });
 
-test("double inheritance", function () {
+test("inherit from a class with a base class", function () {
   var instance = create(2);
   equal(instance._field1, 1);
   equal(instance._field2, 2);
@@ -113,7 +115,7 @@ test("double inheritance", function () {
   equal(instance.method3(), "method3");
 });
 
-test("traits", function () {
+test("apply a trait", function () {
   var instance = create(3);
   equal(instance._field1, 1);
   equal(instance.item("bar"), "bar mixed");
@@ -121,7 +123,7 @@ test("traits", function () {
   equal(instance.normalMethod(), "normal");
 });
 
-test("proxy", function () {
+test("generate a proxy", function () {
   var clazz = defineClass({
     foo: function () {
       this.bar = "bar";
