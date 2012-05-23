@@ -30,6 +30,14 @@
 
   function applyAll(funcs, arg) {
     var i;
+    if (funcs == null) {
+      return arg;
+    } else if (isFunc(funcs)) {
+      funcs = [funcs];
+    } else if (typeof funcs !== "object") {
+      throw new Error("Unexpected decorator " + funcs);
+    }
+
     for (i = 0; i < funcs.length; i++) {
       if (isFunc(funcs[i])) {
         arg = funcs[i](arg) || arg;
@@ -86,8 +94,10 @@
 
   function compileProto(prototype) {
     var sup = prototype._super,
+        applyAfter = prototype.$,
         i, proto;
     delete prototype._super;
+    delete prototype.$;
 
     if (sup) {
       sup = isArray(sup) ? sup.slice() : [sup];
@@ -102,9 +112,9 @@
       }
     }
 
+    prototype = applyAll(applyAfter, prototype);
     return prototype;
   }
-
 
   // Makes a class based on a prototype and its _super field value
   // Simple example:

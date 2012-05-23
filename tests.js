@@ -117,7 +117,7 @@ test("inherit from a class with a base class", function () {
   equal(c.m3(), "c");
 });
 
-test("mix a trait", function () {
+test("apply a trait to a base class", function () {
   function testB(B, inB) {
     var b = new B();
     equal(b.f, 1);
@@ -160,6 +160,28 @@ test("mix a trait", function () {
   var B = A.decorate(T, T2);
   var b = new B();
   equal(b.tm(), "mixmix");
+});
+
+test("apply a trait to a class", function () {
+  var T = defineClass.trait({
+    tm: function () {
+      return "mix";
+    },
+    m: function (p) {
+      return this._super(p) + " mixed";
+    }
+  });
+
+  var A = defineClass({
+    $: T,
+    m: function (p) {
+      return p;
+    }
+  });
+
+  var a = new A();
+  equal(a.m("v"), "v mixed");
+  equal(a.tm(), "mix");
 });
 
 test("implement a trait in a trait", function () {
@@ -281,6 +303,25 @@ test("override nested class", function () {
 
   var b = new B();
   equal(b.n(), 2);
+});
+
+test("apply a class decorator", function () {
+  function classDecorator(proto) {
+    var proto = Object.create(proto);
+    proto.f = 1;
+    return proto;
+  }
+
+  var A = defineClass({
+    $: classDecorator,
+    m: function () {
+      return 2;
+    }
+  });
+
+  var a = new A();
+  equal(a.f, 1);
+  equal(a.m(), 2);
 });
 
 if (!failed) {
