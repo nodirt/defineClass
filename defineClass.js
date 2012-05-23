@@ -11,7 +11,7 @@
 
   // creates a new object with baseObj as prototype.
   function derive(baseObj) {
-    var result, member, clazz;
+    var result, clazz;
     if (Object.create) {
       try {
         result = Object.create(baseObj);
@@ -137,7 +137,7 @@
       return null;
     }
 
-    var baseCtor, i;
+    var baseCtor;
 
     // fix prototype.constructor
     if (!Object.prototype.hasOwnProperty.call(prototype, "constructor")) {

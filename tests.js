@@ -3,10 +3,12 @@ var defineClass = require("./defineClass.js").defineClass,
 
 // micro unit test framework
 function test(name, fn) {
+  var line = "------------------------------------------------------------------------";  
   try {
     fn();
     console.log("pass: " + name)
   } catch (err) {
+    console.log(line);
     failed = true;
     if (err instanceof Error) {
       console.log(err.message);
@@ -15,7 +17,7 @@ function test(name, fn) {
       console.log(err);
     }
     console.log("FAIL: " + name)
-    console.log("------------------------------------------------------------------------");    
+    console.log(line);
   }
 }
 
