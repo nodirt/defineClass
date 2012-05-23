@@ -1,6 +1,6 @@
 (function (exports) {
-  "use strict"
-  var methodTest = /resig/.test(function(){resig;}) ? /\b_super\b/ : /.*/;
+  "use strict";
+  var methodTest = /resig/.test(function(){resig();}) ? /\b_super\b/ : /.*/;
 
   function isFunc(fn) {
     return typeof fn === "function";
@@ -93,7 +93,7 @@
   }
 
   function compileProto(prototype) {
-    function findMemberDecorators(prototype) {
+    function excludeMemberDecorators(prototype) {
       var decorators,
           name;
       for (name in prototype) {
@@ -108,6 +108,7 @@
 
     function applyMemberDecorators(prototype, decorators) {
       var name, decorator;
+      if (!decorators) return;
       for (name in prototype) {
         decorator = decorators[name];
         if (decorator) {
@@ -116,30 +117,35 @@
       }
     }
 
-    var sup = prototype._super,
-        applyAfter = prototype.$,
-        memberDecorators = findMemberDecorators(prototype),
-        i, proto;
+    function combineSupers(supers, prototype) {
+      var result = null,
+          sup, i;
+      if (!supers) return null;
+      supers = isArray(supers) ? supers : [supers];
+      for (i = 0; i < supers.length; i++) {
+        sup = supers[i];
+        if (!isFunc(sup)) throw new Error("Unexpected _super value: " + sup + ". There may be only functions");
+        if (sup.isClass) {
+          if (result) throw new Error("Base class must be the first in _super field and there must be only one base class");
+          result = sup.prototype;
+        } else {
+          result = sup(result || {});
+        }
+      }
+      return result;
+    }
+
+    var superProto = combineSupers(prototype._super),
+        classDecorators = prototype.$,
+        memberDecorators = excludeMemberDecorators(prototype);
     delete prototype._super;
     delete prototype.$;
 
-    if (sup) {
-      sup = isArray(sup) ? sup.slice() : [sup];
-      sup.push(prototype);
-      prototype = null;
-      for (i = 0; i < sup.length; i++) {
-        proto = sup[i];
-        if (isFunc(proto)) {
-          proto = proto.isTrait ? proto.def : proto.prototype;
-        }
-        prototype = prototype ? inherit(prototype, proto) : proto;
-      }
+    if (superProto) {
+      prototype = inherit(superProto, prototype);
     }
-
-    prototype = applyAll(applyAfter, prototype);
-    if (memberDecorators) {
-      applyMemberDecorators(prototype, memberDecorators);
-    }
+    prototype = applyAll(classDecorators, prototype);
+    applyMemberDecorators(prototype, memberDecorators);
     return prototype;
   }
 
@@ -196,10 +202,23 @@
   }
 
   defineClass.trait = function (traitDef) {
-    function trait(proto) {
-      return isFunc(proto) 
-        ? (proto.isTrait ? defineClass.trait : defineClass)({ _super: [proto, traitDef] })
-        : inherit(proto, traitDef);
+    function trait(clazz) {
+      var proto;
+      if (!isFunc(clazz)) return inherit(clazz, traitDef);
+
+      proto = derive(traitDef);
+      proto._super = clazz;
+      if (clazz.isTrait) {
+        return defineClass.trait(proto);
+      } else if (clazz.isClass) {
+        proto.constructor = function () {
+          return clazz.apply(this, arguments);
+        };
+        proto.constructor.prototype = proto;
+        return defineClass(proto);
+      } else {
+        throw Error("Unexpected parameter value");
+      }
     }
 
     if (traitDef && traitDef.hasOwnProperty("constructor")) {
