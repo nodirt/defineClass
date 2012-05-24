@@ -214,6 +214,46 @@ test("generate a proxy", function () {
   equal(a.f, "s");
 });
 
+test("inherit from a proxy", function () {
+  var A = defineClass({
+    constructor: function (f) {
+      this.f = f;
+    },
+
+    m: function (){
+      return this.f;
+    }
+  });
+
+  var B = defineClass({
+    _super: defineClass.proxy(A),
+    m: function () {
+      return this._super() * 2;
+    }
+  });
+
+  var a = new A(8);
+  var b = new B(a);
+  equal(b.m(), 16);
+});
+
+test("apply a proxy trait", function () {
+  var A = defineClass({
+    m: function (){
+      return 1;
+    }
+  });
+
+  var B = defineClass({
+    _super: defineClass.proxyTrait(A, "_a"),
+    constructor: function () {
+      this._a = new A();
+    }
+  });
+
+  equal(new B().m(), 1);
+});
+
 test("override nested class", function () {
   var A = defineClass({
     N: defineClass({

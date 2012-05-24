@@ -164,6 +164,11 @@
         ? (proto.isTrait ? defineClass.trait : defineClass)({ _super: [proto, traitDef] })
         : inherit(proto, traitDef);
     }
+
+    if (traitDef && traitDef.hasOwnProperty("constructor")) {
+      throw new Error("Traits cannot have constructors");
+    }
+
     trait.def = traitDef = compileProto(traitDef);
     trait.decorate = pipeline;
     trait.isTrait = true;
@@ -176,8 +181,9 @@
   //   var person = new Person("Anna");
   //   var proxy = new PersonProxy(person);
   //   proxy.greet(); // Hi, I'm Anna
-  defineClass.proxy = function (classOrMethodNames, fieldName) {
-    var clazz, name, i;
+  function makeProxy(classOrMethodNames, fieldName, makeTrait) {
+    var prototype = {},
+        clazz, name, i;
     if (classOrMethodNames.isClass) {
       clazz = arguments[0];
       classOrMethodNames = [];
@@ -189,11 +195,6 @@
     }
 
     fieldName = fieldName || "_real";
-    var prototype = {
-      constructor: function (real) {
-        this[fieldName] = real;
-      }
-    };
 
     for (i = 0; i < classOrMethodNames.length; i++) {
       if (classOrMethodNames[i] == "constructor") continue;
@@ -205,7 +206,20 @@
       })(classOrMethodNames[i]);
     }
 
+    if (makeTrait) {
+      return defineClass.trait(prototype);
+    }
+
+    prototype.constructor = function (real) {
+      this[fieldName] = real;
+    };
     return defineClass(prototype);
+  }
+  defineClass.proxy = function (classOrMethodNames, fieldName) {
+    return makeProxy(classOrMethodNames, fieldName, false);
+  };
+  defineClass.proxyTrait = function (classOrMethodNames, fieldName) {
+    return makeProxy(classOrMethodNames, fieldName, true);
   };
 
   defineClass.abstractMethod = function () {
