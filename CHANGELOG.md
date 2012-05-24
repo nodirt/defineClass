@@ -1,5 +1,10 @@
 #ChangeLog
 
+### Version 0.2.1
+
+* Added defineClass.proxyTrait
+* Fix: a generated constructor ignored base constructor return value
+
 ### Version 0.2
 
 * Nested classes 
