@@ -1,9 +1,8 @@
-defineClass
-===========
-Simple yet powerful OOP and AOP for JavaScript
-----------------------------------------------
+defineClass - Simple yet powerful OOP and AOP for JavaScript
+============================================================
 
-### Quick start
+Quick start
+-----------
 Defining a class is as simple and declarative as this:
 
 ```js
@@ -56,28 +55,28 @@ $ npm install defineClass
 ```
 
 ### Contents:
-<ol>
+<ul>
 
     <li style="line-height: 4px"><a href="#classes">Classes</a>
-        <ol>
+        <ul>
             <li><a href="#default-field-values">Default field values</a></li>
             <li><a href="#inheritance">Inheritance</a>
-                <ol>
+                <ul>
                     <li><a href="#overriding-methods-and-calling-base-methods">Overriding methods and calling base methods</a></li>
                     <li><a href="#overriding-default-field-values">Overriding default field</a></li>
-                </ol>
+                </ul>
             </li>
             <li><a href="#proxy-classes">Proxy classes</a></li>
             <li><a href="#nested-classes">Nested classes</a>
-                <ol>
+                <ul>
                     <li><a href="#nested-class-overriding">Nested class overriding</a>
-                </ol>
+                </ul>
             </li>
-        </ol>
+        </ul>
     </li>
 
     <li style="line-height: 4px"><a href="#traits">Traits</a>
-        <ol>
+        <ul>
             <li><a href="#applying-a-trait">Applying a trait</a></li>
             <li><a href="#calling-class-methods-in-traits">Calling class methods in traits</a></li>
             <li><a href="#overriding-base-class-methods-with-traits">Overriding base class methods with traits</a></li>
@@ -85,10 +84,10 @@ $ npm install defineClass
             <li><a href="#trait-is-a-function">Trait is a function</a></li>
             <li><a href="#trait-order-in-_super">Trait order in _super</a></li>
             <li><a href="#method-delegation-using-proxy-traits">Method delegation using proxy traits</a></li>
-        </ol>
+        </ul>
     </li>
 
-</ol>
+</ul>
 
 Classes
 -------
@@ -298,8 +297,8 @@ assert(foo.bar() === 2 * 5 + 3 * 5);
 
 Note that:
 
-1. The bar method creates a Bar class instance as `new this.Bar()`. This is flexible because `this.Bar` can be overridden in a subclass.
-2. Since the `Bar` class is _overridden_ in the `Foo2`, it is unnecessary to override the `bar` method.
+* The bar method creates a Bar class instance as `new this.Bar()`. This is flexible because `this.Bar` can be overridden in a subclass.
+* Since the `Bar` class is _overridden_ in the `Foo2`, it is unnecessary to override the `bar` method.
 
 In the fact the above code is a syntax sugar and is expanded to
 
