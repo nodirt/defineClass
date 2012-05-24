@@ -3,13 +3,11 @@ var defineClass = require("./defineClass.js").defineClass,
 
 // micro unit test framework
 function test(name, fn) {
-  var line = "------------------------------------------------------------------------";  
   try {
     fn();
     console.log("pass: " + name)
   } catch (err) {
-    console.log(line);
-    failed = true;
+    console.log("------------------------------------------------------------------------");
     if (err instanceof Error) {
       console.log(err.message);
       console.log(err.stack);
@@ -17,7 +15,7 @@ function test(name, fn) {
       console.log(err);
     }
     console.log("FAIL: " + name)
-    console.log(line);
+    process.exit(1);
   }
 }
 
@@ -378,6 +376,4 @@ test("apply a nested class decorator", function () {
   equal(b.n(), "err");
 });
 
-if (!failed) {
-  console.log("All tests passed");
-}
+console.log("All tests passed");
