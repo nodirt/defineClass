@@ -1,6 +1,6 @@
 (function (exports) {
   "use strict";
-  var methodTest = /resig/.test(function(){resig();}) ? /\b_super\b/ : /.*/;
+  var methodTest = /resig/.test(function(){this.resig();}) ? /\b_super\b/ : /.*/;
 
   function isFunc(fn) {
     return typeof fn === "function";
@@ -94,7 +94,7 @@
 
   function compileProto(prototype) {
     function excludeMemberDecorators(prototype) {
-      var decorators,
+      var decorators = null,
           name;
       for (name in prototype) {
         if (name.length > 1 && name[name.length - 1] == "$") {
@@ -117,7 +117,7 @@
       }
     }
 
-    function combineSupers(supers, prototype) {
+    function combineSupers(supers) {
       var result = null,
           sup, i;
       if (!supers) return null;
