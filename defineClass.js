@@ -28,7 +28,7 @@
     return result;
   }
 
-  function applyAll(funcs, arg) {
+  function applyAll(funcs, arg, arg2) {
     var i;
     if (funcs == null) {
       return arg;
@@ -40,7 +40,7 @@
 
     for (i = 0; i < funcs.length; i++) {
       if (isFunc(funcs[i])) {
-        arg = funcs[i](arg) || arg;
+        arg = funcs[i](arg, arg2) || arg;
       }
     }
     return arg;
@@ -112,7 +112,7 @@
       for (name in prototype) {
         decorator = decorators[name];
         if (decorator) {
-          prototype[name] = applyAll(decorator, prototype[name]);
+          prototype[name] = applyAll(decorator, prototype[name], { parent: prototype, name: name });
         }
       }
     }

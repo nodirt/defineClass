@@ -355,7 +355,10 @@ test("apply a class decorator", function () {
 });
 
 test("apply a method decorator", function () {
-  function suppressError(fn) {
+  var info;
+
+  function suppressError(fn, memberInfo) {
+    info = memberInfo;
     return function () {
       try {
         return fn.apply(this, arguments);
@@ -367,10 +370,15 @@ test("apply a method decorator", function () {
 
   var A = defineClass({
     m$: suppressError,
+    f: 1,
     m: function () {
       throw new Error();
     }
   });
+
+  if (!info || info.name != "m" || info.parent.f !== 1) {
+    throw "Member info expected. Got: " + info;
+  }
 
   var a = new A();
   equal(a.m(), "err");
