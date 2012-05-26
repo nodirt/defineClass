@@ -45,12 +45,14 @@
     }
     return arg;
   }
-  function pipeline(decorator) {
-    return applyAll(arguments, this);
+  function decorateSelf() {
+    var supers = Array.prototype.slice.call(arguments, 0);
+    supers.splice(0, 0, this);
+    return this.__factory__({ _super: supers });
   }
 
   // derives a prototype from another one, inherits/overrides methods and nested classes
-  function inherit(superPrototype, subPrototype) {
+  function inherit(superPrototype, subPrototype, skipCtor) {
     function overrideMethod(superMethod, method) {
       return function () {
         var origSuper = this._super,
@@ -68,6 +70,7 @@
 
     for (p in subPrototype) {
       if (p === "constructor") {
+        if (skipCtor) continue;
         overriddenConstructor = true;
       }
       member = subPrototype[p];
@@ -85,7 +88,7 @@
     }
 
     // IE omits "constructor" property in a for loop if it belongs to the object and not to its prototype.
-    if (!overriddenConstructor && Object.prototype.hasOwnProperty.call(subPrototype, "constructor") && isFunc(superPrototype.constructor)) {
+    if (!skipCtor && !overriddenConstructor && Object.prototype.hasOwnProperty.call(subPrototype, "constructor") && isFunc(superPrototype.constructor)) {
       newPrototype.constructor = overrideMethod(superPrototype.constructor, subPrototype.constructor);
     }
 
@@ -197,37 +200,57 @@
     prototype = compileProto(prototype);
     prototype.constructor.prototype = prototype;
     prototype.constructor.isClass = true;
-    prototype.constructor.decorate = pipeline;
+    prototype.constructor.decorate = decorateSelf;
+    prototype.constructor.__factory__ = defineClass;
     return prototype.constructor;
   }
 
   defineClass.trait = function (traitDef) {
+    function extractSupers() {
+      var supers = traitDef._super,
+          i;
+      if (!supers) return supers;
+
+      delete traitDef._super;
+      supers = isArray(supers) ? supers : [supers];
+      for (i = 0; i < supers.length; i++) {
+        if (!isFunc(supers[i])) {
+          throw "A trait can have only functions in its _super field";
+        }
+        if (supers[i].isClass) {
+          throw "A trait canont have a class in its _super field";
+        }
+      }
+      return supers;
+    }
+    function applyTrait(prototype) {
+      var i;
+      if (superTraits) {
+        for (i = 0; i < superTraits.length; i++) {
+          prototype = superTraits[i](prototype);
+        }
+      }
+      return inherit(prototype, traitDef, true);
+    }
     function trait(clazz) {
       var proto;
-      if (!isFunc(clazz)) return inherit(clazz, traitDef);
-
-      proto = derive(traitDef);
-      proto._super = clazz;
-      if (clazz.isTrait) {
-        return defineClass.trait(proto);
-      } else if (clazz.isClass) {
-        proto.constructor = function () {
-          return clazz.apply(this, arguments);
-        };
-        proto.constructor.prototype = proto;
-        return defineClass(proto);
+      if (!isFunc(clazz)) {
+        return applyTrait(clazz);
+      } else if (isFunc(clazz.decorate)) {
+        return clazz.decorate(trait);
       } else {
         throw Error("Unexpected parameter value");
       }
     }
 
-    if (traitDef && traitDef.hasOwnProperty("constructor")) {
+    var superTraits = extractSupers();
+
+    if (traitDef.hasOwnProperty("constructor")) {
       throw new Error("Traits cannot have constructors");
     }
 
-    trait.def = traitDef = compileProto(traitDef);
-    trait.decorate = pipeline;
-    trait.isTrait = true;
+    trait.__factory__ = defineClass.trait;
+    trait.decorate = decorateSelf;
     return trait;
   };
 

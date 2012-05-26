@@ -216,40 +216,85 @@ test("apply a trait to a class", function () {
   equal(a.tm(), "mix");
 });
 
-test("implement a trait in a trait", function () {
-  var trait1 = defineClass.trait({
-    bar: true,
-    foo: function () {
+test("import a trait in a trait", function () {
+  var T = defineClass.trait({
+    f: true,
+    m: function () {
       return 1;
     }
   });
 
-  var trait2 = defineClass.trait({
-    _super: trait1,
-    bar: false,
-    foo: function () {
+  var T2 = defineClass.trait({
+    _super: T,
+    f: false,
+    m: function () {
       return this._super() * 2;
     }
   });
 
-  var clazz = defineClass({
-    _super: trait2,
-    foo: function () {
+  var A = defineClass({
+    _super: T2,
+    m: function () {
       return this._super() * 2;
     }
   });
 
-  equal(clazz.prototype.bar, false);
-  equal(new clazz().foo(), 4);
+  equal(A.prototype.f, false);
+  equal(new A().m(), 4);
 
-  clazz = defineClass({ _super: trait2(trait1) });
-  equal(new clazz().foo(), 2);  
+  A = defineClass({ _super: T2(T) });
+  equal(new A().m(), 2);
 
-  clazz = defineClass({ _super: trait1.decorate(trait2) });
-  equal(new clazz().foo(), 2);  
+  A = defineClass({ _super: T.decorate(T2) });
+  equal(new A().m(), 2);
 
-  clazz = defineClass({ _super: trait2.decorate(trait1) });
-  equal(new clazz().foo(), 1);
+  A = defineClass({ _super: T2.decorate(T) });
+  equal(new A().m(), 1);
+});
+
+test("import a decorator trait in a decorator trait", function () {
+  var T = defineClass.trait({
+    m: function () {
+      return this._super() + " T1";
+    }
+  });
+
+  var T2 = defineClass.trait({
+    _super: T,
+    m: function () {
+      return this._super() + " T2";
+    }
+  });
+
+  var A = defineClass({
+    $: T2,
+    m: function () {
+      return "v";
+    }
+  });
+
+  equal(new A().m(), "v T1 T2");
+
+  A = defineClass({
+    m: function () {
+      return "v";
+    }
+  });
+  var B = T2(A);
+  var b = new B();
+  equal(b instanceof A, true);
+  equal(b.m(), "v T1 T2");
+
+  var T3 = defineClass.trait({
+    m: function () {
+      return this._super() + " T3";
+    }
+  });
+  var T4 = defineClass.trait({
+    _super: [T3, T2]
+  });
+  B = T4(A);
+  equal(new B().m(), "v T3 T1 T2");
 });
 
 test("generate a proxy", function () {
