@@ -259,6 +259,41 @@
     return trait;
   };
 
+  defineClass.decorator = function (fnDecorator) {
+    function decoratePrototype(target, prototype, parent, info) {
+      var name, decorated;
+      parent = parent || prototype;
+
+      for (name in prototype) {
+        if (name == "constructor") continue;
+        decorated = fnDecorator.call(prototype[name], prototype[name], {
+          name: name,
+          parent: parent,
+          parentInfo: info
+        });
+        if (decorated && decorated != prototype[name]) {
+          target[name] = decorated;
+        }
+      }
+      return target;
+    }
+    function decorator(clazz, info) {
+      var proto;
+      if (!isFunc(clazz)) {
+        return decoratePrototype(derive(clazz), clazz, clazz, info);
+      } else if (isFunc(clazz.__factory__)) {
+        proto = { _super: clazz };
+        decoratePrototype(proto, clazz.prototype, clazz, info);
+        return clazz.__factory__(proto);
+      } else {
+        // just a func
+        return fnDecorator(clazz, info);
+      }
+    }
+
+    return decorator;
+  };
+
   // make a proxy class that delegates methods calls to the base object.
   // Example:
   //   var PersonProxy = defineProxy(Person);

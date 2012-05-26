@@ -463,4 +463,74 @@ test("apply a nested class decorator", function () {
   equal(b.n(), "err");
 });
 
+function logger(func, info) {
+  return function () {
+    this.log = this.log || "";
+    this.log += ">" + info.name + " ";
+    try {
+      return func.apply(this, arguments);
+    } finally {
+      this.log += "<" + info.name + " ";
+    }
+  };
+}
+
+test("defineClass.decorator", function () {
+  var D = defineClass.decorator(logger);
+
+  var A = defineClass({
+    m$: D,
+    m: function () {
+      this.log += "!m! ";
+    }
+  });
+
+  var a = new A();
+  a.m();
+  equal(a.log, ">m !m! <m ");
+
+  var B = defineClass({
+    $: D,
+    m: function () {
+      this.log += "!m! ";
+    },
+    m2: function () {
+      this.log += "!m2! ";
+    }
+  });
+
+  var b = new B();
+  b.m();
+  b.m2();
+  equal(b.log, ">m !m! <m >m2 !m2! <m2 ");
+});
+
+test("defineClass.decorator is trait", function () {
+  var D = defineClass.decorator(logger);
+
+  var A = defineClass({
+    m: function () {
+      this.log += "!m! ";
+    },
+    m2: function () {
+      this.log += "!m2! ";
+    }
+  });
+
+  var B = defineClass({
+    _super: [A, D]
+  });
+
+  var b = new B();
+  b.m();
+  b.m2();
+  equal(b.log, ">m !m! <m >m2 !m2! <m2 ");
+
+  B = D(A);
+  b = new B();
+  b.m();
+  b.m2();
+  equal(b.log, ">m !m! <m >m2 !m2! <m2 ");
+});
+
 console.log("All tests passed");
