@@ -234,6 +234,9 @@
     }
     function trait(clazz) {
       var proto;
+      if (traitDef.isPrototypeOf(this)) {
+        throw new Error("Trait cannot be instantiated");
+      }
       if (!isFunc(clazz)) {
         return applyTrait(clazz);
       } else if (isFunc(clazz.decorate)) {
@@ -251,6 +254,8 @@
 
     trait.__factory__ = defineClass.trait;
     trait.decorate = decorateSelf;
+    trait.prototype = traitDef;
+    trait.prototype.constructor = trait;
     return trait;
   };
 
