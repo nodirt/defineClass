@@ -25,7 +25,7 @@ var defineClass = require("./defineClass.js").defineClass,
     styles[name] = (function (value) {
       function wrap(str) {
         return value[0] + str + value[1];
-      };
+      }
       wrap[0] = value[0];
       wrap[1] = value[1];
       return wrap;
@@ -39,10 +39,12 @@ function test(name, fn) {
     fn();
     console.log(styles.green("pass") + ": " + name)
   } catch (err) {
-    console.log("------------------------------------------------------------------------");
+    console.log(styles.red("------------------------------------------------------------------------"));
     if (err instanceof Error) {
       console.log(err.message);
-      console.log(err.stack);
+      if (err.stack) {
+        console.log(err.stack);
+      }
     } else {
       console.log(err);
     }
