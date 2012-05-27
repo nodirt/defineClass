@@ -259,18 +259,19 @@
     return trait;
   };
 
-  defineClass.decorator = function (fnDecorator) {
+  defineClass.decorator = function (fnDecorator, settings) {
     function decoratePrototype(target, prototype, parent, info) {
       var name, decorated;
       parent = parent || prototype;
 
       for (name in prototype) {
         if (name == "constructor") continue;
+        if (settings.predicate && !settings.predicate(name, prototype[name], name)) continue;
         decorated = fnDecorator.call(prototype[name], prototype[name], {
           name: name,
           parent: parent,
           parentInfo: info
-        });
+        }, settings.options);
         if (decorated && decorated != prototype[name]) {
           target[name] = decorated;
         }
@@ -291,6 +292,20 @@
       }
     }
 
+    decorator.where = function (predicate) {
+      var settings2 = derive(settings);
+      settings2.predicate = function () {
+        return predicate.apply(this, arguments) && (!settings.predicate || settings.predicate.apply(this, arguments));
+      };
+      return defineClass.decorator(fnDecorator, settings2);
+    };
+
+    decorator.opt = function () {
+
+    };
+
+    settings = settings || {};
+    settings.options = settings.options && derive(settings.options);
     return decorator;
   };
 

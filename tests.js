@@ -533,4 +533,25 @@ test("defineClass.decorator is trait", function () {
   equal(b.log, ">m !m! <m >m2 !m2! <m2 ");
 });
 
+test("filtered decorator", function () {
+  var D = defineClass.decorator(logger);
+
+  var A = defineClass({
+    $: D.where(function (name) {
+      return name == "m";
+    }),
+    m: function () {
+      this.log += "!m! ";
+    },
+    m2: function () {
+      this.log += "!m2! ";
+    }
+  });
+
+  var a = new A();
+  a.m();
+  a.m2();
+  equal(a.log, ">m !m! <m !m2! ");
+});
+
 console.log("All tests passed");

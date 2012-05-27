@@ -1,5 +1,12 @@
 #ChangeLog
 
+### Version 0.3
+
+* Added decorators ($)
+* Added defineClass.decorator
+* Fix: A decorator trait that includes other decorator traits didn't work.
+  A decorator trait is a trait that overrides a method and calls its using `this._super`
+
 ### Version 0.2.1
 
 * Added defineClass.proxyTrait
