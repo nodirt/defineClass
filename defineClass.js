@@ -27,6 +27,15 @@
     }
     return result;
   }
+  // trivial jQuery.extend
+  function extend(target, members) {
+    var key;
+    if (!members) return;
+    for (key in members) {
+      target[key] = members[key];
+    }
+    return target;
+  }
 
   function applyAll(funcs, arg, arg2) {
     var i;
@@ -288,24 +297,29 @@
         return clazz.__factory__(proto);
       } else {
         // just a func
-        return fnDecorator(clazz, info);
+        return fnDecorator(clazz, info, settings.options);
       }
     }
 
-    decorator.where = function (predicate) {
+    function deriveDecorator(setting, value) {
       var settings2 = derive(settings);
-      settings2.predicate = function () {
-        return predicate.apply(this, arguments) && (!settings.predicate || settings.predicate.apply(this, arguments));
-      };
+      settings2[setting] = value;
       return defineClass.decorator(fnDecorator, settings2);
+    }
+    decorator.where = function (predicate) {
+      return deriveDecorator("predicate", function () {
+        return predicate.apply(this, arguments) && (!settings.predicate || settings.predicate.apply(this, arguments));
+      });
     };
 
-    decorator.opt = function () {
-
+    decorator.opt = function (newOptions) {
+      var opt = derive(settings.options);
+      extend(opt, newOptions);
+      return deriveDecorator("options", opt);
     };
 
     settings = settings || {};
-    settings.options = settings.options && derive(settings.options);
+    settings.options = settings.options && derive(settings.options) || {};
     return decorator;
   };
 

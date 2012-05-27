@@ -463,9 +463,12 @@ test("apply a nested class decorator", function () {
   equal(b.n(), "err");
 });
 
-function logger(func, info) {
+function logger(func, info, opt) {
   return function () {
     this.log = this.log || "";
+    if (opt.prefix) {
+      this.log += opt.prefix;
+    }
     this.log += ">" + info.name + " ";
     try {
       return func.apply(this, arguments);
@@ -552,6 +555,24 @@ test("filtered decorator", function () {
   a.m();
   a.m2();
   equal(a.log, ">m !m! <m !m2! ");
+});
+
+test("decorator with option", function () {
+  var D = defineClass.decorator(logger);
+
+  var A = defineClass({
+    $: D.opt({ prefix: "$" }),
+    m: function () {
+      this.log += "!m! ";
+    },
+    m2: function () {
+      this.log += "!m2! ";
+    }
+  });
+
+  var a = new A();
+  a.m();
+  equal(a.log, "$>m !m! <m ");
 });
 
 console.log("All tests passed");
