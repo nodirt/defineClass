@@ -4,7 +4,7 @@ Besides [classic OOP](https://github.com/nodirt/defineClass/wiki/Classes) **defi
 
 1. [Traits](https://github.com/nodirt/defineClass/wiki/Traits) from [Scala](http://www.scala-lang.org/node/126)
 2. [Decorators](https://github.com/nodirt/defineClass/wiki/Decorators) from [Python](http://en.wikipedia.org/wiki/Python_syntax_and_semantics#Decorators)
-3. [Nested class overriding](https://github.com/nodirt/defineClass/wiki/Traits)
+3. [Nested class overriding](https://github.com/nodirt/defineClass/wiki/Nested-classes)
 4. [Proxy class](https://github.com/nodirt/defineClass/wiki/Proxy-classes) and 
    [trait](https://github.com/nodirt/defineClass/wiki/Proxy-traits) generation.    
 
