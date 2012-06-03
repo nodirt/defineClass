@@ -8,6 +8,10 @@ Besides [classic OOP](https://github.com/nodirt/defineClass/wiki/Classes) **defi
 4. [Proxy class](https://github.com/nodirt/defineClass/wiki/Proxy-classes) and 
    [trait](https://github.com/nodirt/defineClass/wiki/Proxy-traits) generation.    
 
+## Try online
+
+Try defineClass on [JsBin](http://goo.gl/adcAH).
+
 ## Quick start
 This is a quick start. Detailed explanations are in the [wiki](https://github.com/nodirt/defineClass/wiki).
 
