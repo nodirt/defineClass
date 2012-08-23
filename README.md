@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/nodirt/defineClass.png)](http://travis-ci.org/nodirt/defineClass)
 # defineClass - simple yet powerful OOP and AOP for JavaScript
 
 Besides [classic OOP](https://github.com/nodirt/defineClass/wiki/Classes) **defineClass** has:
